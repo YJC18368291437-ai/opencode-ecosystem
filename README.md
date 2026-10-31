@@ -26,7 +26,7 @@ This workspace addresses each problem with a small, inspectable component:
 | Unverified claims | `prove-it` skill + evidence format in `AGENTS.md` |
 | Lost sources | Search playbook: write raw material to disk, pass paths |
 | Ad-hoc learning | `tutor` / `capture` agents + spaced-repetition term store |
-| Session sprawl | Tagged session titles + `ocs.mjs` CLI + `tagger.tsx` |
+| Session sprawl | `/tag` TUI dialog + `ocs.mjs` CLI + deterministic tagged titles |
 
 ## Architecture
 
@@ -94,6 +94,20 @@ To use a different provider, edit `config/opencode.json` and keep the key in an 
 ```
 
 Optional: the search plugin uses [Tavily](https://tavily.com). Authenticate with `tvly login`, or set `TAVILY_API_KEY`.
+
+## Session tagging (`/tag`)
+
+Open a **main** session in the TUI and type `/tag`. Pick an existing path or create a new one; the title is rewritten deterministically:
+
+```
+[math][physics] 003 entropy
+```
+
+- The TUI command is registered by `config/plugins/tagger.tsx`; it is not a Markdown command under `config/command/`.
+- The CLI shares the same logic: `node ~/.config/opencode/scripts/ocs.mjs ls`.
+- Pure functions and tests live in `config/scripts/tag-core.mjs` and `config/scripts/tag-core.test.mjs`.
+- Your actual session tags are not part of this repository; only the system and templates are.
+- Full details: [docs/tagging.md](docs/tagging.md).
 
 ## Repository layout
 

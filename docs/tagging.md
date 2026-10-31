@@ -65,6 +65,12 @@ validateTagPath("biology/math", tree)
 
 两者都 import `tag-core.mjs`，所以行为一致。
 
+## TUI 用法
+
+在任意**主会话**里输入 `/tag`，选择已有路径或「＋ 新建分类路径…」。子会话不参与编号，换到主会话再操作。
+
+`/tag` 由 `plugins/tagger.tsx` 注册（`slash: { name: "tag" }`），不是 `command/tag.md`；两者同名会冲突，所以仓库只保留插件入口。
+
 ## CLI 用法
 
 ```bash
