@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate JSON
+        run: |
+          for f in config/opencode.json config/tui.json config/handoff.json config/package.json; do
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"
+          done
+
+      - name: Check JavaScript syntax
+        run: |
+          for f in config/scripts/*.mjs config/plugins/*.js; do
+            node --check "$f"
+          done
+
+      - name: Check install script syntax
+        run: bash -n install.sh
+
+      - name: Unit tests
+        run: node --test config/scripts/tag-core.test.mjs
+
+      - name: Scan for common secrets and absolute paths
+        run: |
+          if git grep -nE "sk-[A-Za-z0-9]{20,}|/Users/[^/]+" -- . \
+            ':!.github/**' ':!tools/check-privacy.sh' ':!docs/privacy.md'; then
+            echo "Potential secret or absolute path found" >&2
+            exit 1
+          fi

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "currency": "USD",
+  "note": "All values are adjustable. Stage 0 only reads prices; thresholds and guards activate in later stages.",
+  "prices": {
+    "peak": {
+      "input": 0.3,
+      "output": 1.2,
+      "cacheRead": 0.006,
+      "cacheWrite": 0.3
+    },
+    "offPeak": {
+      "input": 0.15,
+      "output": 0.6,
+      "cacheRead": 0.003,
+      "cacheWrite": 0.15
+    },
+    "peakHoursUtc": [
+      [1, 4],
+      [6, 10]
+    ],
+    "weekendOffPeak": true
+  },
+  "thresholds": {
+    "minContextTokens": 40000,
+    "minRemainingTurns": 3,
+    "qualityOverridesCost": true,
+    "maxContextRatio": 0.9
+  },
+  "estimate": {
+    "turnsPerTodo": 3,
+    "newContextFallbackTokens": 10000
+  },
+  "guards": {
+    "cooldownTurns": 15,
+    "maxPerDay": 8,
+    "allowMechanicalHandoff": false,
+    "idleDebounceSeconds": 30
+  },
+  "output": {
+    "maxWords": 800,
+    "requiredSections": [
+      "目标",
+      "已完成",
+      "已验证",
+      "未验证",
+      "决策",
+      "文件",
+      "下一步",
+      "未决问题"
+    ]
+  },
+  "memory": {
+    "indexMaxLines": 50,
+    "fileMaxLines": 200,
+    "inboxTidyThreshold": 20
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+config/node_modules/
+/logs/
+/config/logs/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+/captures/
+/handoff/
+.opencode/handoff/
+*.local
