@@ -27,6 +27,7 @@ This workspace addresses each problem with a small, inspectable component:
 | Lost sources | Search playbook: write raw material to disk, pass paths |
 | Ad-hoc learning | `tutor` / `capture` agents + spaced-repetition term store |
 | Session sprawl | `/tag` TUI dialog + `ocs.mjs` CLI + deterministic tagged titles |
+| Wrong reasoning depth | `auto-effort.js` picks `low` / `medium` / `high` per message |
 
 ## Architecture
 
@@ -49,14 +50,15 @@ Everything is local. The only network calls are the model provider and optional 
 
 1. **Memory** — layered Markdown (`preferences`, `lessons`, `projects`, `decisions`, `inbox`) with a one-line index injected into every session.
 2. **Handoff & cost** — a handoff contract, a one-key `/switch`, a JSONL event log, and two ways to read cost (live footer + report).
-3. **Learning coach** — `tutor` and `capture` agents, a term store with 1/3/7/14/30-day review intervals, a study panel, and a macOS capture shortcut.
+3. **Learning coach** — `tutor` and `capture` agents, a term store with 1/3/7/14/30-day review intervals, a study panel, and capture shortcuts for macOS and Windows.
 4. **Session tagging** — deterministic titles like `[math][physics] 003 entropy`, numbered per path; a CLI and a TUI dialog share the same pure functions.
+5. **Adaptive reasoning** — `auto-effort.js` fills `reasoningEffort` from the model's variants based on the message, so short chats stay cheap and heavy refactors get deep reasoning.
 
 ## Quick start
 
 Requirements:
 
-- macOS or Linux
+- macOS, Linux, or Windows
 - Node.js **22+** (`scripts/ocs.mjs` uses `node:sqlite`)
 - OpenCode **1.19.x**
 - `npm`
@@ -78,6 +80,15 @@ export DEEPSEEK_API_KEY="sk-..."
 opencode debug config
 opencode
 ```
+
+On Windows, use the PowerShell installer instead:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\windows\install.ps1
+```
+
+See [windows/README.md](windows/README.md) for the capture hotkey and the
+macOS/Windows differences.
 
 The installer:
 
@@ -119,12 +130,13 @@ config/                 -> ~/.config/opencode/
   handoff.json          prices, thresholds, guards, output limits
   agent/                tutor, capture
   command/              /next /done /stuck /status /switch /term ...
-  plugins/              event log, token tracker, study panel, tagger
+  plugins/              event log, token tracker, study panel, tagger, auto-effort
   scripts/              term, panel, cost report, session tagging
 skills/                 -> ~/.agents/skills/
   architect/ grill/ handoff/ memory/ prove-it/
 memory.template/        copied once to ~/.config/opencode/memory/
 macos/                  Automator quick action for capture
+windows/                install.ps1, capture scripts, Windows notes
 docs/                   design notes (Chinese)
 examples/               fictional walkthrough and sample memory
 ```
@@ -150,6 +162,8 @@ Design notes are in Chinese, with English code and README:
 - [Learning coach](docs/learning.md)
 - [Cost and tokens](docs/cost-and-tokens.md)
 - [Session tagging](docs/tagging.md)
+- [Adaptive reasoning](docs/reasoning-effort.md)
+- [Windows](windows/README.md)
 - [Privacy and sanitization](docs/privacy.md)
 - [Case study: decisions and tradeoffs](docs/case-study.md)
 

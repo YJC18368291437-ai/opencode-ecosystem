@@ -114,6 +114,10 @@ exec "$HOME/.config/opencode/scripts/capture-tutor.sh" --clipboard
 - 服务环境没有登录 shell 的 PATH：脚本开头必须显式 `export PATH`，把 Homebrew 路径放前面。
 - 服务环境没有 `LANG`：显式设置 `LC_CTYPE=en_US.UTF-8`，否则中文可能乱码。
 
+### Windows 快捷方式（CTRL+ALT+S）
+
+Windows 用 `windows/capture.ps1`（文字/剪贴板/图片）加 `windows/capture-shortcut.ps1` 建桌面热键，逻辑与 macOS 版一致：新开一个 `capture` 会话，把提示填进输入框但不自动发送。详见 `windows/README.md`。
+
 ## 学习面板
 
 ```bash

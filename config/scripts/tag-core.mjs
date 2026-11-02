@@ -2,6 +2,26 @@ export const FALLBACK = "未分类"
 export const CHILD = "子任务"
 export const TERM = "术语"
 
+export const AGENT_TAGS = {
+  probe: "测试",
+  explore: "调研",
+  tutor: "学习",
+}
+
+export const ALIASES = {
+  ayanami: ["绫波丽", "astrbot"],
+}
+
+export function agentTag(agent) {
+  return AGENT_TAGS[String(agent ?? "").trim().toLowerCase()] ?? null
+}
+
+function textHits(text, name) {
+  const key = nameKey(name)
+  if (text.includes(key)) return true
+  return (ALIASES[key] ?? []).some((alias) => text.includes(alias.toLowerCase()))
+}
+
 export const RULES = [
   [/@(tutor|general) subagent/i, CHILD],
   [/数学|微积分|偏导数/, "数学"],
@@ -297,7 +317,7 @@ export function classify(title, { capture = false, tree } = {}) {
 
   if (text) {
     const leaves = activeTree.nodes.filter(
-      (node) => node.children.size === 0 && text.includes(node.name.toLowerCase()),
+      (node) => node.children.size === 0 && textHits(text, node.name),
     )
     if (leaves.length > 0) {
       const { best, tie } = pickCandidate(leaves)
@@ -324,7 +344,7 @@ export function classify(title, { capture = false, tree } = {}) {
 
   if (text) {
     const parents = activeTree.nodes.filter(
-      (node) => node.children.size > 0 && text.includes(node.name.toLowerCase()),
+      (node) => node.children.size > 0 && textHits(text, node.name),
     )
     if (parents.length > 0) {
       const { best, tie } = pickCandidate(parents)
@@ -401,6 +421,10 @@ export function planSync(sessions = []) {
       tags = result.tags
       autoNow = true
       candidates = result.candidates
+      const byAgent = agentTag(session.agent)
+      if (!capture && byAgent && tags.length === 1 && tags[0] === FALLBACK) {
+        tags = [byAgent]
+      }
     }
 
     if (capture) tags = ensureTerm(tags)

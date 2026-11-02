@@ -12,6 +12,18 @@
         "deepseek-flash": {
           "name": "DeepSeek V4.1 Flash",
           "reasoning": true,
+          "variants": {
+            "auto": {},
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          },
           "limit": {
             "context": 1000000,
             "output": 384000

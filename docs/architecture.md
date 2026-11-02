@@ -87,6 +87,17 @@ plugins/tagger.tsx        # TUI 对话框：同一套纯函数
 - 子会话保留 `[子任务]`，不占编号。
 - 规则和测试都不依赖个人科目，换成你自己的领域即可。
 
+### 5. 自适应思考强度（auto-effort）
+
+```
+plugins/auto-effort.js    # 按 agent / 文本长度 / 关键词选 reasoningEffort
+opencode.json             # 模型声明 variants: auto / low / high / max
+```
+
+- `chat.message` 缓存最近的用户文本（最多 32 条），`chat.params` 据此填 `reasoningEffort`。
+- 只在该模型声明了对应变体时生效；没有 `variants` 的模型自动跳过。
+- 手动选变体的优先级更高，插件不会覆盖已显式指定的值。细节见 `docs/reasoning-effort.md`。
+
 ## 安装模型
 
 ```
@@ -94,9 +105,10 @@ repo/config/         -> ~/.config/opencode/
 repo/skills/         -> ~/.agents/skills/
 repo/memory.template -> ~/.config/opencode/memory/（仅当不存在）
 repo/macos/          -> 手动安装的 Automator 快速操作
+repo/windows/        -> PowerShell 安装器 + capture 脚本
 ```
 
-`install.sh` 默认复制，`--link` 用符号链接方便开发。安装前会备份将被覆盖的文件；**永远不会覆盖已有的 memory 目录**。
+`install.sh` 默认复制，`--link` 用符号链接方便开发。Windows 用 `windows/install.ps1`，行为一致（目录用 junction，失败回退复制）。安装前会备份将被覆盖的文件；**永远不会覆盖已有的 memory 目录**。
 
 ## 为什么不用向量库 / 常驻服务
 

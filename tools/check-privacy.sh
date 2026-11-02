@@ -7,7 +7,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-if git grep -nE "sk-[A-Za-z0-9]{20,}|/Users/[^/]+|sess_[A-Za-z0-9]{10,}" -- . \
+if git grep -nE 'sk-[A-Za-z0-9]{20,}|/Users/[^/]+|[A-Za-z]:[\\/]Users[\\/]|sess_[A-Za-z0-9]{10,}' -- . \
   ':!.github/**' ':!tools/check-privacy.sh' ':!docs/privacy.md'; then
   echo "" >&2
   echo "Potential secret, absolute path, or session id found." >&2

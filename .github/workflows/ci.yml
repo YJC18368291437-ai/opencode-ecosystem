@@ -34,8 +34,21 @@ jobs:
 
       - name: Scan for common secrets and absolute paths
         run: |
-          if git grep -nE "sk-[A-Za-z0-9]{20,}|/Users/[^/]+" -- . \
+          if git grep -nE 'sk-[A-Za-z0-9]{20,}|/Users/[^/]+|[A-Za-z]:[\\/]Users[\\/]' -- . \
             ':!.github/**' ':!tools/check-privacy.sh' ':!docs/privacy.md'; then
             echo "Potential secret or absolute path found" >&2
             exit 1
           fi
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Windows checks
+        shell: pwsh
+        run: ./windows/test.ps1

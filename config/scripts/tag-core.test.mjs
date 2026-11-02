@@ -286,6 +286,67 @@ test("自动会话可重新归类，手动标签不会被覆盖", () => {
   assert.equal(byId.get("child").metadata, null)
 })
 
+test("无关键词的探针会话按 agent 兜底打标", () => {
+  const planned = planSync([
+    session("probe1", "New session - 2026-11-01T12:25:02.394Z", 100, null, { agent: "probe" }),
+    session("probe2", "New session - 2026-11-01T12:25:46.494Z", 200, null, { agent: "probe" }),
+    session("rule", "数学力学", 300, null, { agent: "probe" }),
+    session("manual", "[物理] 001 手动", 400, null, {
+      agent: "probe",
+      metadata: { ocsAuto: false },
+    }),
+    session("frozen", "New session - 2026-11-01T12:26:00.000Z", 500, null, {
+      agent: "probe",
+      metadata: { ocsAuto: false },
+    }),
+    session("build", "New session - 2026-11-01T12:26:10.000Z", 600, null, { agent: "build" }),
+    session("child", "开始学习 (@tutor subagent)", 700, "rule", { agent: "tutor" }),
+  ])
+  const byId = new Map(planned.map((p) => [p.id, p]))
+  assert.deepEqual(byId.get("probe1").tags, ["测试"])
+  assert.equal(byId.get("probe1").number, "001")
+  assert.deepEqual(byId.get("probe1").metadata, { ocsAuto: true })
+  assert.deepEqual(byId.get("probe2").tags, ["测试"])
+  assert.equal(byId.get("probe2").number, "002")
+  assert.deepEqual(byId.get("rule").tags, ["数学"])
+  assert.deepEqual(byId.get("manual").tags, ["物理"])
+  assert.equal(byId.get("manual").metadata, null)
+  assert.deepEqual(byId.get("frozen").tags, ["未分类"])
+  assert.deepEqual(byId.get("build").tags, ["未分类"])
+  assert.deepEqual(byId.get("child").tags, ["子任务"])
+})
+
+test("agent 兜底打标幂等", () => {
+  const sessions = [
+    session("probe", "New session - 2026-11-01T12:25:02.394Z", 100, null, { agent: "probe" }),
+  ]
+  const once = planSync(sessions)
+  const nextSessions = once.map((item) => ({
+    id: item.id,
+    title: item.title,
+    parentID: item.parentID,
+    agent: "probe",
+    metadata: item.metadata ?? undefined,
+    time: sessions[0].time,
+  }))
+  const twice = planSync(nextSessions)
+  assert.deepEqual(once[0].tags, ["测试"])
+  assert.equal(once[0].title, "[测试] 001 New session - 2026-11-01T12:25:02.394Z")
+  assert.deepEqual(twice[0].tags, ["测试"])
+  assert.equal(twice[0].title, once[0].title)
+})
+
+test("别名命中已有分类叶子：绫波丽 -> ayanami", () => {
+  const tree = buildTree([session("a", "[ayanami] 001 从 QQ 迁移", 100)])
+  const alias = classify("绫波丽权限项目阶段 2 收尾与阶段 3 规划", { tree })
+  assert.deepEqual(alias.tags, ["ayanami"])
+  assert.equal(alias.reason, "leaf")
+  const rule = classify("AstrBot 权限配置", { tree })
+  assert.deepEqual(rule.tags, ["ayanami"])
+  const plain = classify("普通杂事", { tree })
+  assert.deepEqual(plain.tags, ["未分类"])
+})
+
 test("capture 自动分类加术语，手动 capture 保留术语上级", () => {
   const sessions = [
     session("a", "[物理][数学] 001 数学", 100),
